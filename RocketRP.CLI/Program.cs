@@ -23,7 +23,7 @@ Parser.Default.ParseArguments<Options>(args)
 
 	if (!opts.DirectoryMode)
 	{
-		ParseReplay(opts.ReplayPath, opts.OutputPath, !opts.Fast, opts.EnforceCRC, opts.PrettyPrint, opts.Mode);
+		ParseReplay(opts.ReplayPath, opts.OutputPath, !opts.Fast, opts.EnforceCRC, opts.PrettyPrint, opts.Mode, opts.ShouldBackup, opts.ShouldFixBrokenPropertyName);
 	}
 	else
 	{
@@ -39,7 +39,7 @@ Parser.Default.ParseArguments<Options>(args)
 		var threads = new List<Thread>();
 		foreach (var replayFile in replayFiles)
 		{
-			var thread = new Thread(() => ParseReplay(replayFile.FullName, opts.OutputPath, !opts.Fast, opts.EnforceCRC, opts.PrettyPrint, opts.Mode));
+			var thread = new Thread(() => ParseReplay(replayFile.FullName, opts.OutputPath, !opts.Fast, opts.EnforceCRC, opts.PrettyPrint, opts.Mode, opts.ShouldBackup, opts.ShouldFixBrokenPropertyName));
 			thread.Start();
 			threads.Add(thread);
 
@@ -64,7 +64,7 @@ Parser.Default.ParseArguments<Options>(args)
 	}
 });
 
-static void ParseReplay(string replayPath, string outputPath, bool parseNetstream, bool enforceCRC, bool prettyPrint, SerializationMode mode)
+static void ParseReplay(string replayPath, string outputPath, bool parseNetstream, bool enforceCRC, bool prettyPrint, SerializationMode mode, bool createBackup, bool fixBrokenPropertyName)
 {
 	var serializer = new ReplayJsonSerializer();
 
@@ -83,6 +83,47 @@ static void ParseReplay(string replayPath, string outputPath, bool parseNetstrea
 			File.WriteAllText(outputFilePath, jsonData);
 
 			Console.WriteLine($"Parsed replay: {replayPath}: {outputFilePath}!");
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine($"Failed to parse replay: {e.Message}");
+			//var replayOutputPath = Path.Combine(outputPath + "\\failedReplays", Path.GetFileName(replayPath));
+			//Directory.CreateDirectory(Path.GetDirectoryName(replayOutputPath));
+			//if (File.Exists(replayOutputPath)) return;
+			//File.Copy(replayPath, replayOutputPath, false);
+			return;
+		}
+	}
+	else if (mode == SerializationMode.Repack)
+	{
+		try
+		{
+			if (!fixBrokenPropertyName)
+			{
+				Console.WriteLine("NoOp repack detected. Skipping");
+				return;
+			}
+			//if (File.Exists(outputFilePath)) return;
+			if (createBackup)
+			{
+				var backupFilePath = Path.ChangeExtension(replayPath, ".backup");
+				File.Copy(replayPath, backupFilePath, overwrite: true);
+				Console.WriteLine($"Backup created: {backupFilePath}");
+			}
+			Console.WriteLine($"Parsing replay: {replayPath}...");
+			var replay = Replay.Deserialize(replayPath, parseNetstream, enforceCRC);
+			var i = replay.Objects.IndexOf("TAGame.PRI_TA:PlayerHistoryValid");
+			if (i == -1)
+			{
+				Console.WriteLine("No property to fix for the repack. Skipping");
+				return;
+			}
+
+			replay.Objects[i] = "TAGame.PRI_TA:bPlayerHistoryValid";
+
+			Console.WriteLine($"Repacking...");
+			replay.Serialize(replayPath);
+			Console.WriteLine($"Repacked replay: {replayPath}");
 		}
 		catch (Exception e)
 		{

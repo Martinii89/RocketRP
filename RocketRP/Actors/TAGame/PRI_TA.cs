@@ -48,7 +48,7 @@ namespace RocketRP.Actors.TAGame
 		public ObjectTarget ReplicatedGameEvent { get; set; }
 		public bool bAbleToStart { get; set; }
 		public bool bIdleBanned { get; set; }
-		public bool PlayerHistoryValid { get; set; }
+		public bool bPlayerHistoryValid  { get; set; }
 		public bool bUsingItems { get; set; }
 		public bool bStartVoteToForfeitDisabled { get; set; }
 		public bool bIsInSplitScreen { get; set; }
@@ -65,7 +65,8 @@ namespace RocketRP.Actors.TAGame
 		public int MatchScore { get; set; }
 
 
-		// These are old properties that were removed
+		// These are old properties that were 
+		public bool PlayerHistoryValid { get; set; }
 		public bool bUsingBehindView { get; set; }
 		public bool bUsingSecondaryCamera { get; set; }
 		public int RespawnTimeRemaining { get; set; }

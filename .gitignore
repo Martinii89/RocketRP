@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 /RocketRP.CLI/Properties
 /RocketRP.TrainingCLI/Properties
+.idea
