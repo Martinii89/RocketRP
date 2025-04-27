@@ -73,21 +73,23 @@ app.MapPost("api/replayfix", async (IFormFile file, ReplayFixHandler handler) =>
     try
     {
         await using var fileStream = file.OpenReadStream();
-        var data = await handler.Handle(fileStream);
-        return TypedResults.File(data, "application/octet-stream", file.FileName);
+        var resultStream = await handler.Handle(fileStream);
+        return TypedResults.File(resultStream, "application/octet-stream", file.FileName);
     }
     catch (Exception ex)
     {
         return Results.Problem("Error processing replay");
     }
-}).DisableAntiforgery().RequireRateLimiting(fixedPolicy);
+}).DisableAntiforgery()
+    .RequireRateLimiting(fixedPolicy)
+    .WithOpenApi();
 
 
 app.Run();
 
 public class ReplayFixHandler(ILogger<ReplayFixHandler> logger)
 {
-    public Task<byte[]> Handle(Stream fileStream)
+    public Task<Stream> Handle(Stream fileStream)
     {
         try
         {
@@ -98,9 +100,10 @@ public class ReplayFixHandler(ILogger<ReplayFixHandler> logger)
             {
                 replay.Objects[index] = "TAGame.PRI_TA:bPlayerHistoryValid";
             }
-
-            var replayBytes = replay.SerializeNetStream();
-            return Task.FromResult(replayBytes);
+            var stream = new MemoryStream();
+            replay.Serialize(stream);
+            stream.Position = 0;
+            return Task.FromResult<Stream>(stream);
         }
         catch (Exception ex)
         {
