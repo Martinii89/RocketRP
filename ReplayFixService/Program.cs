@@ -103,6 +103,7 @@ public class ReplayFixHandler(ILogger<ReplayFixHandler> logger)
             var stream = new MemoryStream();
             replay.Serialize(stream);
             stream.Position = 0;
+            logger.LogInformation("Successfully processed replay");
             return Task.FromResult<Stream>(stream);
         }
         catch (Exception ex)
