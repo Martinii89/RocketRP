@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RocketRP.CLI", "RocketRP.CL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RocketRP.TrainingCLI", "RocketRP.TrainingCLI\RocketRP.TrainingCLI.csproj", "{D98A8341-D499-439D-9949-1A3000ADFC8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayFixService", "ReplayFixService\ReplayFixService.csproj", "{94B4D4E3-D826-40FD-A23B-5E32A4E55721}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D98A8341-D499-439D-9949-1A3000ADFC8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D98A8341-D499-439D-9949-1A3000ADFC8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D98A8341-D499-439D-9949-1A3000ADFC8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94B4D4E3-D826-40FD-A23B-5E32A4E55721}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94B4D4E3-D826-40FD-A23B-5E32A4E55721}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94B4D4E3-D826-40FD-A23B-5E32A4E55721}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94B4D4E3-D826-40FD-A23B-5E32A4E55721}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

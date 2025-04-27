@@ -33,10 +33,10 @@ namespace RocketRP.CLI
 		[Option('m', "mode", Default = SerializationMode.Deserialize, HelpText = $"{"Deserialize"} to JSON or {"Serialize"} from JSON")]
 		public SerializationMode Mode { get; set; }
 		
-		[Option( "legacy-fix", Default = false, HelpText = "Renames PlayerHistoryValid  to bPlayerHistoryValid  on export")]
+		[Option("legacy-fix", Default = false, HelpText = "Renames PlayerHistoryValid  to bPlayerHistoryValid  on export")]
 		public bool ShouldFixBrokenPropertyName { get; set; }
 		
-		[Option( "backup", Default = true, HelpText = "Create a backup before repacking")]
+		[Option("backup", Default = true, HelpText = "Create a backup before repacking")]
 		public bool ShouldBackup { get; set; }
 	}
 
