@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using RocketRP;
 using Scalar.AspNetCore;
@@ -25,16 +26,24 @@ var fixedPolicy = "fixed";
 
 builder.Services.AddRateLimiter(rateLimiterOptions =>
 {
-    rateLimiterOptions.AddFixedWindowLimiter(policyName: fixedPolicy, options =>
+    rateLimiterOptions.AddPolicy(policyName: fixedPolicy, partitioner: httpContext =>
     {
-        var myOptions = builder.Configuration
-            .GetSection(MyRateLimitOptions.MyRateLimit)
-            .Get<MyRateLimitOptions>();
-            
-        options.PermitLimit = myOptions.PermitLimit;
-        options.Window = TimeSpan.FromMinutes(myOptions.Window);
-        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = myOptions.QueueLimit;
+        // Get client IP address
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(clientIp, factory: _ =>
+        {
+            var myOptions = builder.Configuration
+                .GetSection(MyRateLimitOptions.MyRateLimit)
+                .Get<MyRateLimitOptions>();
+
+            return new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = myOptions.PermitLimit,
+                Window = TimeSpan.FromMinutes(myOptions.Window),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = myOptions.QueueLimit
+            };
+        });
     });
     rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
@@ -50,6 +59,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseCors();
 app.UseRateLimiter();
