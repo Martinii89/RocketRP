@@ -137,6 +137,10 @@ namespace RocketRP.DataTypes
 				bw.Write(i, Length);
 
 				var methodInfo = typeof(T).GetMethod("Serialize", new Type[] { typeof(BitWriter) }) ?? typeof(T).GetMethod("Serialize", new Type[] { typeof(BitWriter), typeof(Replay) });
+				if (methodInfo is null)
+				{
+					throw new MethodAccessException($"Serialize method in {typeof(T).Name} is missing");
+				}
 				if (methodInfo.GetParameters().Length == 1) methodInfo.Invoke(Values[i], new object[] { bw });
 				else if (methodInfo.GetParameters().Length == 2) methodInfo.Invoke(Values[i], new object[] { bw, replay });
 				else throw new MethodAccessException($"Serialize method in {typeof(T).Name} must have 1 or 2 parameters");
