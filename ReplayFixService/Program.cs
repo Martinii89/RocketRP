@@ -105,14 +105,13 @@ public class ReplayFixHandler(ILogger<ReplayFixHandler> logger)
             var binaryReader = new BinaryReader(fileStream);
             var replay = Replay.Deserialize(binaryReader);
             var index = replay.Objects.IndexOf("TAGame.PRI_TA:PlayerHistoryValid");
-            if (index != -1)
+            if (index == -1)
             {
-                replay.Objects[index] = "TAGame.PRI_TA:bPlayerHistoryValid";
-            }
-            else
-            {
+                logger.LogWarning("TAGame.PRI_TA:PlayerHistoryValid property not found. Someone uploaded a replay that doesn't seem broken.");
                 return Task.FromResult<(Stream?, RepackResult)>((null, RepackResult.MissingProperty));
             }
+
+            replay.Objects[index] = "TAGame.PRI_TA:bPlayerHistoryValid";
             var stream = new MemoryStream();
             replay.Serialize(stream);
             stream.Position = 0;
